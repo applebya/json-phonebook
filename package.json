@@ -1,0 +1,17 @@
+{
+  "name": "phonebookjs",
+  "version": "1.0.0",
+  "description": "File-based persistence for phonebook contacts",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "tape-watch -r babel-register src/index-spec.js | faucet"
+  },
+  "author": "Andrew Appleby <andrewappleby22@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-preset-es2015": "6.24.1",
+    "babel-register": "6.24.1",
+    "blue-tape": "1.0.0",
+    "fs-extra": "4.0.1"
+  }
+}
