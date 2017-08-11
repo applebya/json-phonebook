@@ -11,7 +11,7 @@ class Phonebook {
 		return readFromJson(this.filePath);
 	}
 
-	fetchByNameType(nameType, orderType = "asc") {
+	fetchByNameType(nameType, orderType) {
 		if (["firstName", "lastName"].indexOf(nameType) === -1) {
 			throw new Error(`Unkown nameType: '${nameType}'`);
 			return;
@@ -22,20 +22,30 @@ class Phonebook {
 			return;
 		}
 
-		return this.fetchAll().then(data =>
-			data.sort((a, b) => {
+		return this.fetchAll().then(data => {
+			let ordered = data.sort((a, b) => {
 				let nameA = a[nameType].toUpperCase();
 				let nameB = b[nameType].toUpperCase();
 
 				if (nameA < nameB) {
-					return orderType === "asc" ? -1 : 1;
+					return -1;
 				}
 				if (nameA > nameB) {
-					return orderType === "asc" ? 1 : -1;
+					return 1;
 				}
 
 				return 0;
-			})
+			});
+
+			return orderType === "asc" ? ordered : ordered.reverse();
+		});
+	}
+
+	fetchByKeyword(keyword = "") {
+		return this.fetchAll().then(data =>
+			data.filter(({ firstName, lastName, phoneNumber, phoneType }) =>
+				[firstName, lastName, phoneNumber, phoneType].some(val => val.indexOf(keyword) > -1)
+			)
 		);
 	}
 
@@ -53,14 +63,35 @@ class Phonebook {
 			.then(() => newContacts);
 	}
 
-	addContact(contact) {
+	addContact(newContact) {
 		// TODO: Shape check
 		let newContacts;
 
-		contact.id = RandomId();
+		newContact.id = RandomId();
 
 		return this.fetchAll()
-			.then(originalContacts => [...originalContacts, contact])
+			.then(originalContacts => [...originalContacts, newContact])
+			.then(contacts => {
+				newContacts = contacts;
+				return Fs.writeFile(this.filePath, JSON.stringify(newContacts));
+			})
+			.then(() => newContacts);
+	}
+
+	editContact(editedContact) {
+		// TODO: Shape check
+		let newContacts;
+
+		return this.fetchAll()
+			.then(contacts =>
+				contacts.map(contact => {
+					if (contact.id === editedContact.id) {
+						return editedContact;
+					}
+
+					return contact.id === editedContact.id ? editedContact : contact;
+				})
+			)
 			.then(contacts => {
 				newContacts = contacts;
 				return Fs.writeFile(this.filePath, JSON.stringify(newContacts));
