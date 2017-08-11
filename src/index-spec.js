@@ -1,58 +1,60 @@
 import test from "blue-tape";
-import { Phonebook } from "./index";
+import Phonebook from "./index";
 import Fs from "fs-extra";
-// import { fetchContacts } from "./utils";
 
-// Test data
 const filePath = "./temp/contacts-test.json";
 
-const demoObject = {
-	firstName: "Andrew",
-	lastName: "Appleby",
-	type: "Work",
-	number: "111-111-1111"
-};
+test("Creates a class instance with specified filePath", t => {
+	let phonebook = new Phonebook(filePath);
 
-// Utilities
-function createTestFile(filePath) {
-	return Fs.open(filePath, "w").then(Fs.close);
-}
+	t.ok(phonebook.filePath === filePath);
+	t.end();
+});
 
-function checkFileExists(filePath) {
-	return Fs.access(filePath, Fs.constants.R_OK | Fs.constants.W_OK);
-}
+// test("Can't create class instance with invalid filePath", t => {
+// 	let phonebook = new Phonebook("./doesnotexist.json");
 
-function writeDemoData(filePath, data) {
-	return Fs.writeFile(filePath, JSON.stringify(data));
-}
+// 	t.ok(phonebook.filePath === filePath);
+// 	t.end();
+// });
 
-function readDemoData(filePath) {
-	return Fs.readFile(filePath).then(data => JSON.parse(data));
-}
+test("Loads contact list array from json file", t => {
+	let phonebook = new Phonebook(filePath);
 
-// Tests
-test("Can create a json file", t => {
-	t.pass(`File ${filePath} exists`);
-
-	return createTestFile(filePath)
-		.then(() => {
-			return checkFileExists(filePath);
-		})
-		.then(err => {
-			t.ok(!err);
+	return phonebook
+		.fetchAll()
+		.then(contacts => {
+			t.ok(contacts instanceof Array);
 		})
 		.catch(t.fail);
 });
 
-test("Can write and read json file", t => {
-	t.pass(`File ${filePath} was written to`);
+test("Writes a new contact to the json file", t => {
+	let phonebook = new Phonebook(filePath);
 
-	return writeDemoData(filePath, demoObject)
-		.then(() => {
-			return readDemoData(filePath);
+	const contact = {
+		firstName: "Tucan",
+		lastName: "Sam",
+		phoneNumber: "111-111-1111",
+		phoneType: "Cellular",
+		timestamp: "June 12,2017" // TODO: Better timestamp
+	};
+
+	// const expected = JSON.parse(Fs.readFileSync(filePath));
+	let allContacts;
+
+	return phonebook
+		.fetchAll()
+		.then(contacts => {
+			allContacts = contacts;
 		})
-		.then(data => {
-			t.deepEqual(data, demoObject, "Is equal????");
-		})
-		.catch(t.fail);
+		.then(() => phonebook.addContact(contact))
+		.then(newContacts => {
+			const appendedContact = newContacts[newContacts.length - 1];
+			t.deepEqual(contact, appendedContact);
+		});
+});
+
+test("Deletes a specific object from the list", t => {
+	let Phonebook = new Phonebook(filePath);
 });
