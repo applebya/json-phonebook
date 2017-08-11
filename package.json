@@ -4,7 +4,7 @@
   "description": "File-based persistence for phonebook contacts",
   "main": "src/index.js",
   "scripts": {
-    "test": "tape-watch -r babel-register src/index-spec.js | faucet"
+    "test": "babel-node --presets es2015 ./src/index-spec.js | faucet"
   },
   "author": "Andrew Appleby <andrewappleby22@gmail.com>",
   "license": "MIT",
