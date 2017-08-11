@@ -5,9 +5,11 @@ import Fs from "fs-extra";
 const filePath = "./temp/contacts-test.json";
 const seedsFilePath = "./src/contacts-seeds.json";
 
-let phonebook = new Phonebook(filePath);
+let phonebook;
 
 test("Creates a class instance with specified filePath", t => {
+	phonebook = new Phonebook(filePath);
+
 	t.ok(phonebook.filePath === filePath);
 	t.end();
 });
